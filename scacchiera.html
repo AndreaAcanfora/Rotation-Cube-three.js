@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>scacchiera</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				background-color: #fff;
+				margin: 0px;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<script src="three.js/build/three.min.js"></script>
+		<script>
+
+			var camera, scene, renderer , rotation = false, flag = false, timer = 1;
+			var mouse = new THREE.Vector2();
+			init();
+			animate();
+
+			function init() {
+				scene = new THREE.Scene();
+
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
+				camera.position.set(40,120,120);
+				camera.lookAt(scene.position);
+
+				var plane = new THREE.Mesh(
+					new THREE.PlaneGeometry(120,120),
+					new THREE.MeshBasicMaterial({
+						map:THREE.ImageUtils.loadTexture("three.js/examples/textures/terrain/grasslight-big.jpg")
+					})
+				);
+				plane.position.y = -0.1;
+				plane.rotation.x = -90 * Math.PI /180;
+
+				var light = new THREE.DirectionalLight( 0xffffff, 5 );
+				light.position.set( 0, 10, 0 ).normalize();
+				scene.add( light );
+
+				var size = 60, step = size/4, radius = step/3;
+
+				var geometry = new THREE.Geometry();
+				var material = new THREE.LineBasicMaterial({color:'white'});
+				var geometryCylinder = new THREE.CylinderGeometry(radius,radius,3,30,30,false);
+				var materialRed = new THREE.MeshLambertMaterial({color: 'red'});
+				var materialBlue = new THREE.MeshLambertMaterial({color: 'blue'});
+
+				for(var i = -size, j = 0; i <= size; i+=step,j++){
+					if (!(j % 2) && i != size) {
+						var cube = new THREE.Mesh(geometryCylinder, materialRed	);
+						cube.position.set( -size + (step/2) , 0 , i + (step/2));
+						scene.add(cube);
+						var cube = new THREE.Mesh(geometryCylinder, materialRed );
+						cube.position.set( -size + (step/2) + 2*step , 0 , i + (step/2));
+						scene.add(cube);
+						var cube = new THREE.Mesh(geometryCylinder, materialBlue );
+						cube.position.set( size - (step/2) , 0 , i + (step/2) + step);
+						scene.add(cube);
+						var cube = new THREE.Mesh(geometryCylinder, materialBlue );
+						cube.position.set( size - (step/2) -(step*2) , 0 , i + (step/2) + step);
+						scene.add(cube);
+					}else if( i != size ) {
+						var cube = new THREE.Mesh(geometryCylinder, materialRed );
+						cube.position.set( -size + (step/2) + step , 0 , i + (step/2));
+						scene.add(cube);
+						var cube = new THREE.Mesh(geometryCylinder, materialBlue );
+						cube.position.set( size - (step/2) - step , 0 , i + (step/2) - step);
+						scene.add(cube);
+					}
+					geometry.vertices.push(new THREE.Vector3( -size , - 0.02 , i ));
+					geometry.vertices.push(new THREE.Vector3(  size , - 0.02 , i ));
+					geometry.vertices.push(new THREE.Vector3( i , - 0.02 , -size ));
+					geometry.vertices.push(new THREE.Vector3( i , - 0.02 ,  size ));
+				}
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setClearColor( 0xf0f0f0 );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.sortObjects = false;
+				document.body.appendChild(renderer.domElement);
+
+				var line = new THREE.Line( geometry, material, THREE.LinePieces);
+				scene.add(line);
+				scene.add(plane);
+
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				document.addEventListener('mousedown', animate2, false);
+				window.addEventListener( 'resize', onWindowResize, false );
+				
+				render();	
+			}
+			
+			function animate(){
+				requestAnimationFrame( animate );
+				render();
+			}
+
+			function animate2(){
+				rotation = !rotation;
+			}
+
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+
+			function onDocumentMouseMove( event ) {
+
+				event.preventDefault();
+
+				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+				mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+			}
+
+			function render() {
+				if(rotation){
+					camera.position.x = Math.cos( timer ) * 140;
+					camera.position.z = Math.sin( timer ) * 140;
+					camera.lookAt(scene.position);
+					timer += !flag ? -0.003 : 0.03;
+					flag = timer == -1 ? true : timer == 1 ? false : flag;
+				}
+
+				renderer.render( scene, camera );
+			}
+		</script>
+	</body>
+</html>
