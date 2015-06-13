@@ -13,7 +13,7 @@
 		</style>
 	</head>
 	<body>
-		<script src="three.js/build/three.min.js"></script>
+		<script src="three.js/three.min.js"></script>
 		<script>
 
 			var camera, scene, renderer , rotation = false, flag = false, timer = 1;
@@ -31,7 +31,7 @@
 				var plane = new THREE.Mesh(
 					new THREE.PlaneGeometry(120,120),
 					new THREE.MeshBasicMaterial({
-						map:THREE.ImageUtils.loadTexture("three.js/examples/textures/terrain/grasslight-big.jpg")
+						map:THREE.ImageUtils.loadTexture("three.js/grasslight-big.jpg")
 					})
 				);
 				plane.position.y = -0.1;
